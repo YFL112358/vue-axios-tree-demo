@@ -1,15 +1,18 @@
 <template>
   <div class="demo">
     <button class="btn" type="button" name="button" @click="getData">点击</button>
-    <el-tree :data="datas" :props="defaultProps" node-key="id" ref="tree" @node-click="handleNodeClick"></el-tree>
-     <ul v-show="isShowNativeResult">
-      <li v-for="(data,index) in realDatas">
-        <span>
-          {{data.objectValue}}
-        </span>
-       
-      </li>
-    </ul>
+   
+    <div class="left">
+      <el-tree :data="datas" :props="defaultProps" node-key="id" ref="tree" @node-click="handleNodeClick"></el-tree>
+    </div>
+    <div class="from_box">
+     <div class="form-sub">
+    <form action="" method="post" id="form" class="form">
+      <input  v-for="(em,index) in realDatas" :name="em.objectName" v-model="em.objectValue" :key="index"/>
+    </form>
+    </div>
+    <span class="but" @click="onSubmit()">提交</span>
+    </div>
   </div>
 </template>
 
@@ -19,6 +22,7 @@ export default {
   data () {
     return {
        datas: [],
+       realDatas:[],
         defaultProps: {
           children: 'children',
           label: 'showName'
@@ -26,6 +30,7 @@ export default {
         isShowNativeResult:false
     }
   },
+ 
   methods:{
     getData() {
       var that = this
@@ -53,15 +58,26 @@ export default {
       this.$axios.post('v1/getRealIceData', requestBody)
       .then(response =>{
         console.log(response.data)
-        that.realDatas = response.data
+        this.realDatas = response.data
         this.isShowNativeResult = true;
-        this.$message.success(response.data)
+      })
+      .catch(error =>{
+        console.log(error)
+      })
+    },
+    onSubmit() {
+      /* json格式提交： */
+      // let formData = JSON.stringify(this.formMess);
+ 
+      /* formData格式提交： */
+      this.$axios.post('v1/updateIceData', this.realDatas)
+      .then(response =>{
+        console.log(response.data)
       })
       .catch(error =>{
         console.log(error)
       })
     }
-    
   }
 }
 
@@ -71,7 +87,13 @@ export default {
 <style scoped>
 .btn {
   padding: 5px;
-  background-color: red;
+  background-color: rgb(226, 63, 63);
+}
+.left {
+  float: left;
+}
+.right {
+  float: right;
 }
 ul {
   list-style-type: none;
